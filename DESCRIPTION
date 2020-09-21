@@ -1,0 +1,18 @@
+Package: series.4macro
+Title: Series 4macro
+Version: 1.0.0.0
+Authors@R: 
+    person(given = "João Gustavo",
+           role = c("aut", "cre"),
+           email = "joao@4intelligence.com.br")
+Description: O pacote series.4macro tem o intuito de padronizar e facilitar acessos aos endpoints do servidor.
+Depends: R (>= 3.0.0)
+Imports:
+	jsonlite,
+	ini,
+	httr,
+	stringr
+License: Mozilla Public License 2.0
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.1.0
