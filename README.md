@@ -20,7 +20,7 @@ Para a instalação utilize o [devtools](https://cran.r-project.org/package=devt
 
     install.packages("devtools")
     library(devtools)
-    install_github("4intelligence/r-package-4macro")
+    install_github("4intelligence/4macro-lib-r")
 
 ## Autenticação
 
