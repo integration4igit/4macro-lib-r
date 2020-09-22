@@ -52,9 +52,9 @@ O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 \item{force: }{Opcional. Se TRUE força a geração do conteúdo da resposta com a propriedade label mesmo
  que exista nenhuma ou apenas um segmento estimado. Vale FALSE se não for especificado;}
 \item{reff: }{Opcional. Retornar datas de referência para as observações caso TRUE, ou a data original informada pela fonte primária ou gerada pelo algoritmo de estimativa FALSE;}
-}
 \item{start: }{Opcional. String com data para inicio dos dados da série a serem requisitados;}
 \item{end: }{Opcional. String com data limite das informações da série;}
+}
 }
 \examples{
 

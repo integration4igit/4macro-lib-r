@@ -31,9 +31,9 @@
 #' \item{force: }{Opcional. Se TRUE força a geração do conteúdo da resposta com a propriedade label mesmo
 #'  que exista nenhuma ou apenas um segmento estimado. Vale FALSE se não for especificado;}
 #' \item{reff: }{Opcional. Retornar datas de referência para as observações caso TRUE, ou a data original informada pela fonte primária ou gerada pelo algoritmo de estimativa FALSE;}
-#' }
 #' \item{start: }{Opcional. String com data para inicio dos dados da série a serem requisitados;}
 #' \item{end: }{Opcional. String com data limite das informações da série;}
+#' }
 #' 
 #' @return O retorno consiste em uma lista contendo seis campos: series, names, short_names, content, last_actual e status, respectivamente.
 #' Dentro de cada campo haverá uma outra lista, em que cada posição representa uma informação das séries
