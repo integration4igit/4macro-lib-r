@@ -7,20 +7,13 @@
 #' 
 #' @description Função que busca dados de uma ou mais séries
 #'
-#' @param filepath String com caminho para o arquivo \code{.ini} de autenticação, para gerar um arquivo utilize a função \code{generate_auth}
+#' @param filepath String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}
 #' @param base_parameters Data Frame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados no teim details desta documentação
 #' @param lang String com a língua definida para as respostas das séries
 #'
 #' @author Gustavo Marins Bitencourt
 #' 
-#' @details O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
-#' seguintes campos:
-#' 
-#' \itemize{
-#' \item{url: }{Url base de acesso ao servidor;}
-#' \item{usr: }{Id do usuário;}
-#' \item{pwd: }{Senha do usuário.}
-#' }
+#' @details Utiliza das variáveis de ambiente \code{.Renviron} para a validação dos dados.
 #' 
 #' O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 #' 
@@ -33,6 +26,16 @@
 #' \item{reff: }{Opcional. Retornar datas de referência para as observações caso TRUE, ou a data original informada pela fonte primária ou gerada pelo algoritmo de estimativa FALSE;}
 #' \item{start: }{Opcional. String com data para inicio dos dados da série a serem requisitados;}
 #' \item{end: }{Opcional. String com data limite das informações da série;}
+#' }
+#' 
+#' **DEPRECATED**
+#' O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
+#' seguintes campos:
+#' 
+#' \itemize{
+#' \item{url: }{Url base de acesso ao servidor;}
+#' \item{usr: }{Id do usuário;}
+#' \item{pwd: }{Senha do usuário.}
 #' }
 #' 
 #' @return O retorno consiste em uma lista contendo seis campos: series, names, short_names, content, last_actual e status, respectivamente.
@@ -73,14 +76,28 @@
 #'    reff = c(TRUE)
 #'  )
 #' 
-#' get_multi_series("/home/joao/auth.ini", query_data, "pt-br")
+#' get_multi_series(query_data, "pt-br")
 #' 
 #' }
 #' 
 #' @export
-get_multi_series <- function(filepath, base_parameters, lang) {
-	ds_data <- ini::read.ini(filepath)[[1]] 
+get_multi_series <- function(filepath = NULL, base_parameters, lang) {
+	
+	if( ! is.null(filepath) )
+	{
+		# Read .ini file
+		ds_data <- ini::read.ini(filepath)[[1]] 
+	}
+	else
+	{
+		# Read environment variables
+		ds_data <- list('url' = Sys.getenv("URL_4MACRO"),
+						'usr' = Sys.getenv("USR_4MACRO"),
+						'pwd' = Sys.getenv("PWD_4MACRO"))
+	}
+	
 	url_base <- ds_data$url
+	
 	
 	if(stringr::str_detect(url_base, "https://", TRUE)) {
 		url_base <- base::paste0("https://", url_base)  

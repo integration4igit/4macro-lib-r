@@ -7,7 +7,7 @@
 #' 
 #' @description Função para inserir dados estimados ou realizados em uma determinada série
 #'
-#' @param filepath String com caminho para o arquivo \code{.ini} de autenticação, para gerar um arquivo utilize a função \code{generate_ini}
+#' @param filepath String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}
 #' @param serie String com o código de 16 digitos da série
 #' @param overwrite Logical para definir se as observações poderão ser sobrescritas ou não
 #' @param access_group String com o nome do grupo de acesso para inserir a série
@@ -17,7 +17,11 @@
 #'
 #' @author João Gustavo Oliveira
 #' 
-#' @details O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
+#' @details Utiliza das variáveis de ambiente \code{.Renviron} para a validação dos dados.
+#' Para criar um arquivo de autenticação utilize a função \code{generate_r_environ}
+#' 
+#' **DEPRECATED**
+#' O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
 #' seguintes campos:
 #' 
 #' \itemize{
@@ -25,7 +29,6 @@
 #' \item{usr: }{Id do usuário;}
 #' \item{pwd: }{Senha do usuário.}
 #' }
-#' 
 #' 
 #' Para criar um arquivo de autenticação utilize a função \code{generate_ini}
 #' 
@@ -57,8 +60,21 @@
 #' }
 #' 
 #' @export 
-insert_series <- function(filepath, serie, overwrite, access_group, contents, estimate, label_estimate = NULL) {
-	auth_data <- ini::read.ini(filepath)[[1]]
+insert_series <- function(filepath = NULL, serie, overwrite, access_group, contents, estimate, label_estimate = NULL) {
+	
+	if( ! is.null(filepath) )
+	{
+		# Read .ini file
+		auth_data <- ini::read.ini(filepath)[[1]] 
+	}
+	else
+	{
+		# Read environment variables
+		auth_data <- list('url' = Sys.getenv("URL_4MACRO"),
+						  'usr' = Sys.getenv("USR_4MACRO"),
+						  'pwd' = Sys.getenv("PWD_4MACRO"))
+	}
+	
 	url_base <- auth_data$url
 	
 	if(stringr::str_detect(url_base, "https://", TRUE)) {
