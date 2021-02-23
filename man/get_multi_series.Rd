@@ -4,10 +4,10 @@
 \alias{get_multi_series}
 \title{Busca de informações de uma ou mais séries}
 \usage{
-get_multi_series(filepath, base_parameters, lang)
+get_multi_series(filepath = NULL, base_parameters, lang)
 }
 \arguments{
-\item{filepath}{String com caminho para o arquivo \code{.ini} de autenticação, para gerar um arquivo utilize a função \code{generate_auth}}
+\item{filepath}{String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}}
 
 \item{base_parameters}{Data Frame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados no teim details desta documentação}
 
@@ -34,14 +34,7 @@ possíveis valores para status são:
 Função que busca dados de uma ou mais séries
 }
 \details{
-O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
-seguintes campos:
-
-\itemize{
-\item{url: }{Url base de acesso ao servidor;}
-\item{usr: }{Id do usuário;}
-\item{pwd: }{Senha do usuário.}
-}
+Utiliza das variáveis de ambiente \code{.Renviron} para a validação dos dados.
 
 O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 
@@ -54,6 +47,16 @@ O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 \item{reff: }{Opcional. Retornar datas de referência para as observações caso TRUE, ou a data original informada pela fonte primária ou gerada pelo algoritmo de estimativa FALSE;}
 \item{start: }{Opcional. String com data para inicio dos dados da série a serem requisitados;}
 \item{end: }{Opcional. String com data limite das informações da série;}
+}
+
+**DEPRECATED**
+O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
+seguintes campos:
+
+\itemize{
+\item{url: }{Url base de acesso ao servidor;}
+\item{usr: }{Id do usuário;}
+\item{pwd: }{Senha do usuário.}
 }
 }
 \examples{
@@ -77,7 +80,7 @@ query_data <- data.frame(
    reff = c(TRUE)
  )
 
-get_multi_series("/home/joao/auth.ini", query_data, "pt-br")
+get_multi_series(query_data, "pt-br")
 
 }
 

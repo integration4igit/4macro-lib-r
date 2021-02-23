@@ -5,7 +5,7 @@
 \title{Insere Valores em uma Série Especificada}
 \usage{
 insert_series(
-  filepath,
+  filepath = NULL,
   serie,
   overwrite,
   access_group,
@@ -15,7 +15,7 @@ insert_series(
 )
 }
 \arguments{
-\item{filepath}{String com caminho para o arquivo \code{.ini} de autenticação, para gerar um arquivo utilize a função \code{generate_ini}}
+\item{filepath}{String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}}
 
 \item{serie}{String com o código de 16 digitos da série}
 
@@ -52,6 +52,10 @@ message um texto explicitando o código recebido. Os possíveis códigos de reto
 Função para inserir dados estimados ou realizados em uma determinada série
 }
 \details{
+Utiliza das variáveis de ambiente \code{.Renviron} para a validação dos dados.
+Para criar um arquivo de autenticação utilize a função \code{generate_r_environ}
+
+**DEPRECATED**
 O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
 seguintes campos:
 
@@ -60,7 +64,6 @@ seguintes campos:
 \item{usr: }{Id do usuário;}
 \item{pwd: }{Senha do usuário.}
 }
-
 
 Para criar um arquivo de autenticação utilize a função \code{generate_ini}
 }
