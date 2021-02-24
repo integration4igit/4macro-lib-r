@@ -48,7 +48,7 @@ Este arquivo pode ser criado utilizando a função `generate_ini` ou `generate_r
 
     library(series.4macro)
     generate_ini("https://4intelligence.com.br/example_url", "example@4i.com.br", "example_pwd")
-    filepath_ini <- paste0(getwd(), "auth.ini")
+    filepath_ini <- paste0(getwd(), "/auth.ini")
 
 
 ## Utilização
@@ -112,7 +112,7 @@ O DataFrame utilizado em ```base_parameters``` deve conter as seguintes colunas:
 **Exemplo**:
 
     library(series.4macro)
-    df_query_data <- data.frame(
+    query_data <- data.frame(
         sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'),
         label = c(NA, "Estimativa 2020-01-02"),
         estimate = c(TRUE, TRUE),
