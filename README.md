@@ -73,7 +73,7 @@ Função para a inserção de observações realizadas ou projetadas em uma sér
     insert_series("BRLDG0002000SOML", TRUE, "Geral", data_to_insert, FALSE)
     
     # Com autenticação .ini
-    insert_series(filepath_ini, "BRLDG0002000SOML", TRUE, "Geral", data_to_insert, FALSE)
+    insert_series("BRLDG0002000SOML", TRUE, "Geral", data_to_insert, FALSE, filepath = 'home/example/auth.ini')
     
 O retorno consiste em uma lista contendo dois campos, ```code``` e ```message```, code contém o código da resposta do servidor e message um texto
 explicitando o código recebido. Os possíveis códigos de retorno são:
@@ -112,6 +112,7 @@ O DataFrame utilizado em ```base_parameters``` deve conter as seguintes colunas:
 **Exemplo**:
 
     library(series.4macro)
+    
     query_data <- data.frame(
         sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'),
         label = c(NA, "Estimativa 2020-01-02"),
@@ -119,7 +120,8 @@ O DataFrame utilizado em ```base_parameters``` deve conter as seguintes colunas:
         force = c(FALSE, FALSE),
         reff = c(TRUE, FALSE)
     )
-    series_data <- get_multi_series(filepath_ini, query_data, "pt-br")
+    
+    series_data <- get_multi_series(query_data, lang = "pt-br", filepath = 'home/example/auth.ini')
 
 O retorno consiste em uma lista contendo seis campos: series, names, short_names, content, last_actual e status, respectivamente. Dentro de cada campo haverá
 uma outra lista, em que cada posição representa uma informação das séries consultadas, respeitando a ordem de entrada. O campo ```names``` contém o nome longo
