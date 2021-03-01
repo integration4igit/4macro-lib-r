@@ -7,14 +7,20 @@
 #' 
 #' @description Função que busca dados de uma ou mais séries
 #'
-#' @param filepath String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}
 #' @param base_parameters Data Frame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados no teim details desta documentação
-#' @param lang String com a língua definida para as respostas das séries
+#' @param filepath (Opcional) String com caminho para o arquivo \code{.ini} de autenticação.
+#' @param lang (Opcional) String com a língua definida para as respostas das séries
 #'
 #' @author Gustavo Marins Bitencourt
+#' @author Samuel Souza
 #' 
-#' @details Utiliza das variáveis de ambiente \code{.Renviron} para a validação dos dados.
+#' @details Primeiramente é necessário salvar as suas credenciais em um arquivo \code{.ini} ou \code{.Renviron}
+#' Para gerar um arquivo de autenticação utilize a função \code{generate_ini} ou \code{generate_r_environ}
+#' É altamente recomendável utilizar o \code{.Renviron} como seu arquivo de autenticação.
 #' 
+#' Para criar um arquivo de autenticação utilize a função \code{generate_r_environ} ou \code{generate_ini}
+#' 
+#' Os parâmetros da consulta devem ser passados como um dataframe.
 #' O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 #' 
 #' \itemize{
@@ -28,7 +34,14 @@
 #' \item{end: }{Opcional. String com data limite das informações da série;}
 #' }
 #' 
-#' **DEPRECATED**
+#' O arquivo de autenticação \code{.Renviron} deverá conter os seguintes campos:
+#' \itemize{
+#' \item{URL_4MACRO }{Url base de acesso ao servidor}
+#' \item{USR_4MACRO }{Id do usuário}
+#' \item{PWD_4MACRO }{Senha do usuário}
+#' }
+#' 
+#' DEPRECATED
 #' O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
 #' seguintes campos:
 #' 
@@ -58,35 +71,42 @@
 #' @examples 
 #' 
 #' \dontrun{
+#' # Utilizando um arquivo .ini
 #' query_data <- data.frame(
-#'    sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'),
-#'    label = c(NA, "Estimativa 2020-01-02"),
-#'    estimate = c(TRUE, TRUE),
-#'    force = c(FALSE, FALSE),
-#'    reff = c(TRUE, FALSE)
-#'  )
+#'  sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'), 
+#'  label = c(NA, "Estimativa 2020-01-02"),
+#'  estimate = c(TRUE, TRUE),
+#'  force = c(FALSE, FALSE),
+#'  reff = c(TRUE, FALSE)
+#' )
 #' 
-#' get_multi_series("/home/joao/auth.ini", query_data, "pt-br")
+#' get_multi_series(query_data, filepath = "/home/samuel/auth.ini", lang = "pt-br")
 #' 
+#' # Utilizando variáveis de ambiente
 #' query_data <- data.frame(
-#'    sid = c('BRGDP0002000ROQL'),
-#'    label = c(NA),
-#'    estimate = c(TRUE),
-#'    force = c(FALSE),
-#'    reff = c(TRUE)
-#'  )
+#' 	sid = c('BRGDP0002000ROQL'),
+#' 	label = c(NA),
+#' 	estimate = c(TRUE),
+#' 	force = c(FALSE),
+#' 	reff = c(TRUE)
+#' )
 #' 
-#' get_multi_series(query_data, "pt-br")
+#' get_multi_series(query_data)
 #' 
 #' }
 #' 
 #' @export
-get_multi_series <- function(filepath = NULL, base_parameters, lang) {
+get_multi_series <- function(base_parameters,  ...) {
 	
-	if( ! is.null(filepath) )
+	# Validação dos parâmetros opcionais
+	parametros <- names(list(...))
+	
+	# Arquivo .ini ou .Renviron
+	if('filepath' %in% parametros)
 	{
 		# Read .ini file
-		ds_data <- ini::read.ini(filepath)[[1]] 
+		filepath <- list(...)[['filepath']]
+		ds_data  <- ini::read.ini(filepath)[[1]] 
 	}
 	else
 	{
@@ -96,8 +116,18 @@ get_multi_series <- function(filepath = NULL, base_parameters, lang) {
 						'pwd' = Sys.getenv("PWD_4MACRO"))
 	}
 	
-	url_base <- ds_data$url
+	# Linguagem
+	if( 'lang' %in% parametros )
+	{
+		lang <- list(...)[['lang']]
+	}
+	else
+	{
+		lang <- 'pt-br'
+	}
 	
+	# Adicionando protocolo https
+	url_base <- ds_data$url
 	
 	if(stringr::str_detect(url_base, "https://", TRUE)) {
 		url_base <- base::paste0("https://", url_base)  
@@ -105,10 +135,22 @@ get_multi_series <- function(filepath = NULL, base_parameters, lang) {
 	
 	url <- base::paste0(url_base, "/services/GoetheDB/procedureExecutor/procedure/execute/createGetMultiSeries")
 	
-	sids <- NULL
-	parameters_sid = colnames(base_parameters)
+	# Validação do parametro 'base_parameters'
+	tryCatch(
+		expr  = {
+			sids <- NULL
+			parameters_sid = colnames(base_parameters)
+			
+			sids$sid <- base_parameters$sid
+			
+		},
+		error = function(e) { 
+			stop("Argumento 'base_parameters' inválido!")
+		}
+	)
 	
-	sids$sid <- base_parameters$sid
+	# Fazendo a requisição
+	
 	if("label" %in% parameters_sid) sids$lbl <- base_parameters$label
 	if("estimate" %in% parameters_sid) sids$est <- base_parameters$estimate
 	if("force" %in% parameters_sid) sids$forcelbl <- base_parameters$force
@@ -148,4 +190,3 @@ get_multi_series <- function(filepath = NULL, base_parameters, lang) {
 	
 	return(tidy_data)
 }
- 
