@@ -98,7 +98,10 @@ Função que busca dados de uma ou mais séries basendo-se em um DataFrame para 
 
 * **filepath**: (Parâmetro Opcional) String com caminho para o arquivo .ini de autenticação, para gerar um arquivo utilize a função generate_auth;
 * **base_parameters**: DataFrame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados abaixo;
-* **lang**: String com a língua definida para as respostas das séries.
+* **lang**: (Parâmetro Opcional) String com a língua definida para as respostas das séries.
+
+**_OBS_**: _Os parâmetros opcionais devem ser especificados ao chamar a função. Como por exemplo, ao utilizar o parâmetro `lang`, utilizar `lang = ` na função. Exemplo: `get_multi_series(data, lang = 'pt-br')`_.
+
 
 O DataFrame utilizado em ```base_parameters``` deve conter as seguintes colunas:
 * **sid**: Obrigatório. Códigos de 16 dígitos das séries que deseja consultar;
