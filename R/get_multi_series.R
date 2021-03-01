@@ -8,8 +8,7 @@
 #' @description Função que busca dados de uma ou mais séries
 #'
 #' @param base_parameters Data Frame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados no teim details desta documentação
-#' @param filepath (Opcional) String com caminho para o arquivo \code{.ini} de autenticação.
-#' @param lang (Opcional) String com a língua definida para as respostas das séries
+#' @param ... Parâmetros adicionais: \code{filepath} String com caminho para o arquivo \code{.ini} de autenticação; \code{lang} (Opcional) String com a língua definida para as respostas das séries
 #'
 #' @author Gustavo Marins Bitencourt
 #' @author Samuel Souza

@@ -7,13 +7,13 @@
 #' 
 #' @description Função para inserir dados estimados ou realizados em uma determinada série
 #'
-#' @param filepath (Opcional) String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}
 #' @param serie String com o código de 16 digitos da série
 #' @param overwrite Logical para definir se as observações poderão ser sobrescritas ou não
 #' @param access_group String com o nome do grupo de acesso para inserir a série
 #' @param contents DataFrame contendo as observações com obrigatóriamente duas colunas: \code{date} e \code{val}, as datas devem estar no formato ISO \code{yyyy-mm-dd}
 #' @param estimate Logical \code{TRUE} se são dados projetados, para dados realizados \code{FALSE}
 #' @param label_estimate String com nome da projeção, obrigatório somente para dados projetados
+#' @param ... Parâmetros adicionais: \code{filepath} String com caminho para o arquivo \code{.ini} de autenticação
 #'
 #' @author João Gustavo Oliveira
 #' 

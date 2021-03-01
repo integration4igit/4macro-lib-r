@@ -4,14 +4,12 @@
 \alias{get_multi_series}
 \title{Busca de informações de uma ou mais séries}
 \usage{
-get_multi_series(filepath = NULL, base_parameters, lang)
+get_multi_series(base_parameters, ...)
 }
 \arguments{
-\item{filepath}{String com caminho para o arquivo \code{.ini} de autenticação ou **NULL** para utilizar variáveis de ambiente. Para gerar um arquivo utilize a função \code{generate_ini} ou \code{generate_r_environ}}
-
 \item{base_parameters}{Data Frame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados no teim details desta documentação}
 
-\item{lang}{String com a língua definida para as respostas das séries}
+\item{...}{Parâmetros adicionais: \code{filepath} String com caminho para o arquivo \code{.ini} de autenticação; \code{lang} (Opcional) String com a língua definida para as respostas das séries}
 }
 \value{
 O retorno consiste em uma lista contendo seis campos: series, names, short_names, content, last_actual e status, respectivamente.
@@ -34,8 +32,13 @@ possíveis valores para status são:
 Função que busca dados de uma ou mais séries
 }
 \details{
-Utiliza das variáveis de ambiente \code{.Renviron} para a validação dos dados.
+Primeiramente é necessário salvar as suas credenciais em um arquivo \code{.ini} ou \code{.Renviron}
+Para gerar um arquivo de autenticação utilize a função \code{generate_ini} ou \code{generate_r_environ}
+É altamente recomendável utilizar o \code{.Renviron} como seu arquivo de autenticação.
 
+Para criar um arquivo de autenticação utilize a função \code{generate_r_environ} ou \code{generate_ini}
+
+Os parâmetros da consulta devem ser passados como um dataframe.
 O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 
 \itemize{
@@ -49,7 +52,14 @@ O Data Frame de consulta deve ter obrigatóriamente os seguintes campos:
 \item{end: }{Opcional. String com data limite das informações da série;}
 }
 
-**DEPRECATED**
+O arquivo de autenticação \code{.Renviron} deverá conter os seguintes campos:
+\itemize{
+\item{URL_4MACRO }{Url base de acesso ao servidor}
+\item{USR_4MACRO }{Id do usuário}
+\item{PWD_4MACRO }{Senha do usuário}
+}
+
+DEPRECATED
 O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
 seguintes campos:
 
@@ -62,29 +72,33 @@ seguintes campos:
 \examples{
 
 \dontrun{
+# Utilizando um arquivo .ini
 query_data <- data.frame(
-   sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'),
-   label = c(NA, "Estimativa 2020-01-02"),
-   estimate = c(TRUE, TRUE),
-   force = c(FALSE, FALSE),
-   reff = c(TRUE, FALSE)
- )
+ sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'), 
+ label = c(NA, "Estimativa 2020-01-02"),
+ estimate = c(TRUE, TRUE),
+ force = c(FALSE, FALSE),
+ reff = c(TRUE, FALSE)
+)
 
-get_multi_series("/home/joao/auth.ini", query_data, "pt-br")
+get_multi_series(query_data, filepath = "/home/samuel/auth.ini", lang = "pt-br")
 
+# Utilizando variáveis de ambiente
 query_data <- data.frame(
-   sid = c('BRGDP0002000ROQL'),
-   label = c(NA),
-   estimate = c(TRUE),
-   force = c(FALSE),
-   reff = c(TRUE)
- )
+	sid = c('BRGDP0002000ROQL'),
+	label = c(NA),
+	estimate = c(TRUE),
+	force = c(FALSE),
+	reff = c(TRUE)
+)
 
-get_multi_series(query_data, "pt-br")
+get_multi_series(query_data)
 
 }
 
 }
 \author{
 Gustavo Marins Bitencourt
+
+Samuel Souza
 }
