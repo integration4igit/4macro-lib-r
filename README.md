@@ -11,6 +11,7 @@ Repositório sob licença [Mozilla Public Version 2.0](https://www.mozilla.org/e
 
 ## Funções
 * **generate_ini** cria um arquivo de auntenticação `.ini`;
+* **generate_r_environ** cria um arquivo com as variáveis de ambiente `.Renviron`;
 * **insert_series** insere dados em uma determinada série;
 * **get_multi_series** consulta as observações de uma ou mais séries.
 
@@ -25,23 +26,37 @@ Para a instalação utilize o [devtools](https://cran.r-project.org/package=devt
 ## Autenticação
 
 Para a utilização das funções presente no pacote é necessário possuir um usuário devidamente autenticado, tais informações de autenticação devem ser fornecidas
-através de um arquivo `.ini`, este arquivo deve conter obrigatóriamente uma seção `login` contendo os seguintes campos:
+
+* Através de variáveis de ambiente (Recomendado)
+
+* Através de um arquivo `.ini`, este arquivo deve conter obrigatóriamente uma seção `login`.
+
+Independente da forma de autenticação escolhida, deve ser fornecido os seguintes campos:
+
 * **url**: url base de acesso para a API;
 * **usr**: identifação do usuário;
 * **pwd**: senha do usuário.
 
-Este arquivo pode ser criado utilizando a função `generate_ini`, de acordo com o exemplo:
+Este arquivo pode ser criado utilizando a função `generate_ini` ou `generate_r_environ`, de acordo com o exemplo:
+
+### .Renviron
+
+    library(series.4macro)
+    generate_r_environ("https://4intelligence.com.br/example_url", "example@4i.com.br", "example_pwd")
+
+### .ini
 
     library(series.4macro)
     generate_ini("https://4intelligence.com.br/example_url", "example@4i.com.br", "example_pwd")
-    filepath_ini <- paste0(getwd(), "auth.ini")
+    filepath_ini <- paste0(getwd(), "/auth.ini")
 
 
 ## Utilização
 
 ### insert_series
 Função para a inserção de observações realizadas ou projetadas em uma série, argumentos:
-* **filepath**: String com caminho para o arquivo `.ini` de autenticação;
+
+* **filepath**: (Parâmetro Opcional) String com caminho para o arquivo `.ini` de autenticação;
 * **serie**: String com o código de 16 digitos da série;
 * **overwrite**:	Logical para definir se as observações poderão ser sobrescritas ou não;
 * **access_group**: String com o nome do grupo de acesso para inserir a série;
@@ -53,10 +68,16 @@ Função para a inserção de observações realizadas ou projetadas em uma sér
 
     library(series.4macro)
     data_to_insert <- data.frame("date" = c("2020-05-13", "2020-05-14"), "val" = c(21.5, 23))
-    insert_series(filepath_ini, "BRLDG0002000SOML", TRUE, "Geral", data_to_insert, FALSE)
+    
+    # Com as variáveis de ambiente
+    insert_series("BRLDG0002000SOML", TRUE, "Geral", data_to_insert, FALSE)
+    
+    # Com autenticação .ini
+    insert_series("BRLDG0002000SOML", TRUE, "Geral", data_to_insert, FALSE, filepath = 'home/example/auth.ini')
     
 O retorno consiste em uma lista contendo dois campos, ```code``` e ```message```, code contém o código da resposta do servidor e message um texto
 explicitando o código recebido. Os possíveis códigos de retorno são:
+
 * **0**:	Dados inseridos com sucesso;
 * **1**:	Erro no formato da requisição;
 * **2**:	Parâmetro usr não está no formato correto;
@@ -75,9 +96,12 @@ explicitando o código recebido. Os possíveis códigos de retorno são:
 ### get_multi_series
 Função que busca dados de uma ou mais séries basendo-se em um DataFrame para consulta, argumentos:
 
-* **filepath**: String com caminho para o arquivo .ini de autenticação, para gerar um arquivo utilize a função generate_auth;
+* **filepath**: (Parâmetro Opcional) String com caminho para o arquivo .ini de autenticação, para gerar um arquivo utilize a função generate_auth;
 * **base_parameters**: DataFrame, obrigatóriamente, com todos os parâmetros necessários para a API funcionar. Os parâmetros são datalhados abaixo;
-* **lang**: String com a língua definida para as respostas das séries.
+* **lang**: (Parâmetro Opcional) String com a língua definida para as respostas das séries.
+
+**_OBS_**: _Os parâmetros opcionais devem ser especificados ao chamar a função. Como por exemplo, ao utilizar o parâmetro `lang`, utilizar `lang = ` na função. Exemplo: `get_multi_series(data, lang = 'pt-br')`_.
+
 
 O DataFrame utilizado em ```base_parameters``` deve conter as seguintes colunas:
 * **sid**: Obrigatório. Códigos de 16 dígitos das séries que deseja consultar;
@@ -91,14 +115,16 @@ O DataFrame utilizado em ```base_parameters``` deve conter as seguintes colunas:
 **Exemplo**:
 
     library(series.4macro)
-    df_query_data <- data.frame(
+    
+    query_data <- data.frame(
         sid = c('BRGDP0002000ROQL', 'BRGDP0021000ROQL'),
         label = c(NA, "Estimativa 2020-01-02"),
         estimate = c(TRUE, TRUE),
         force = c(FALSE, FALSE),
         reff = c(TRUE, FALSE)
     )
-    series_data <- get_multi_series(filepath_ini, query_data, "pt-br")
+    
+    series_data <- get_multi_series(query_data, lang = "pt-br", filepath = 'home/example/auth.ini')
 
 O retorno consiste em uma lista contendo seis campos: series, names, short_names, content, last_actual e status, respectivamente. Dentro de cada campo haverá
 uma outra lista, em que cada posição representa uma informação das séries consultadas, respeitando a ordem de entrada. O campo ```names``` contém o nome longo

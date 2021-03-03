@@ -7,17 +7,31 @@
 #' 
 #' @description Função para inserir dados estimados ou realizados em uma determinada série
 #'
-#' @param filepath String com caminho para o arquivo \code{.ini} de autenticação, para gerar um arquivo utilize a função \code{generate_ini}
 #' @param serie String com o código de 16 digitos da série
 #' @param overwrite Logical para definir se as observações poderão ser sobrescritas ou não
 #' @param access_group String com o nome do grupo de acesso para inserir a série
 #' @param contents DataFrame contendo as observações com obrigatóriamente duas colunas: \code{date} e \code{val}, as datas devem estar no formato ISO \code{yyyy-mm-dd}
 #' @param estimate Logical \code{TRUE} se são dados projetados, para dados realizados \code{FALSE}
 #' @param label_estimate String com nome da projeção, obrigatório somente para dados projetados
+#' @param ... Parâmetros adicionais: \code{filepath} String com caminho para o arquivo \code{.ini} de autenticação
 #'
 #' @author João Gustavo Oliveira
 #' 
-#' @details O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
+#' @details Primeiramente é necessário salvar as suas credenciais em um arquivo \code{.ini} ou \code{.Renviron}
+#' Para gerar um arquivo de autenticação utilize a função \code{generate_ini} ou \code{generate_r_environ}
+#' É altamente recomendável utilizar o \code{.Renviron} como seu arquivo de autenticação.
+#' 
+#' Para criar um arquivo de autenticação utilize a função \code{generate_r_environ} ou \code{generate_ini}
+#' 
+#' O arquivo de autenticação \code{.Renviron} deverá conter os seguintes campos:
+#' \itemize{
+#' \item{URL_4MACRO }{Url base de acesso ao servidor}
+#' \item{USR_4MACRO }{Id do usuário}
+#' \item{PWD_4MACRO }{Senha do usuário}
+#' }
+#' 
+#' DEPRECATED
+#' O arquivo de autenticação \code{.ini} deve conter uma única seção com o nome \code{login}, incluindo o
 #' seguintes campos:
 #' 
 #' \itemize{
@@ -25,9 +39,6 @@
 #' \item{usr: }{Id do usuário;}
 #' \item{pwd: }{Senha do usuário.}
 #' }
-#' 
-#' 
-#' Para criar um arquivo de autenticação utilize a função \code{generate_ini}
 #' 
 #' @return O retorno consiste em uma lista contendo dois campos, code e message, code contém o código da resposta do servidor e
 #' message um texto explicitando o código recebido. Os possíveis códigos de retorno são:
@@ -51,14 +62,33 @@
 #' @examples 
 #' \dontrun{
 #' df <- data.frame("date" = c("2020-05-13"), "val" = c("21.5"))
-#' insert_series("/home/joao/auth.ini", "BRLDG0002000SOML", TRUE, "Geral", df, FALSE)
-#' insert_series("/home/joao/auth.ini", "BRLDG0002000SOML", FALSE, "Geral", df, TRUE, 
-#'     "Estimado em 2020-05-13")
+#' 
+#' insert_series("BRLDG0002000SOML", TRUE, "Geral", df, FALSE, filepath = "/home/joao/auth.ini")
+#' 
+#' insert_series("BRLDG0002000SOML", FALSE, "Geral", df, TRUE, 
+#'  "Estimado em 2020-05-13", filepath = "/home/joao/auth.ini")
+#'  
 #' }
 #' 
 #' @export 
-insert_series <- function(filepath, serie, overwrite, access_group, contents, estimate, label_estimate = NULL) {
-	auth_data <- ini::read.ini(filepath)[[1]]
+insert_series <- function(serie, overwrite, access_group, contents, estimate, label_estimate = NULL, ...) {
+	
+	parametros <- names(list(...))
+	
+	if( 'filepath' %in% parametros )
+	{
+		# Read .ini file
+		filepath <- list(...)[['filepath']]
+		auth_data <- ini::read.ini(filepath)[[1]] 
+	}
+	else
+	{
+		# Read environment variables
+		auth_data <- list('url' = Sys.getenv("URL_4MACRO"),
+						  'usr' = Sys.getenv("USR_4MACRO"),
+						  'pwd' = Sys.getenv("PWD_4MACRO"))
+	}
+	
 	url_base <- auth_data$url
 	
 	if(stringr::str_detect(url_base, "https://", TRUE)) {
