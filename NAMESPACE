@@ -2,5 +2,6 @@
 
 export(generate_ini)
 export(generate_r_environ)
+export(get_estimated_labels)
 export(get_multi_series)
 export(insert_series)
